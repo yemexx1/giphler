@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Giphler</title>
+</head>
+<body>
+<div class="container">
+    <!-- Navbar -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">Giphler</li>
+        </ol>
+    </nav>
+
+    <!-- Search Bar -->
+    <div class="col-6 offset-3 mb-4">
+        <label class="sr-only" for="search_input">Search</label>
+        <div class="input-group mb-2">
+            <input type="text" class="form-control" id="search_input" placeholder="Enter some text...">
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary" id="search_button" type="button" disabled="disabled">Search</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="giphys_loader">Loading...</div>
+
+    <div id="giphys_space" class="d-none">
+        <!-- Gihpys -->
+        <div class="row" id="giphys">
+        </div>
+
+        <!-- Load More -->
+        <div class="text-center mb-4">
+            <button type="button" id="more" class="btn btn-outline-primary">Load More</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="giphy_template">
+    <div class="card text-white">
+        <img class="card-img" src="" alt="">
+        <div class="card-img-overlay">
+            <span class="card-text"></span>
+        </div>
+    </div>
+</script>
+
+<script src="js/giphler.js"></script>
+</body>
+</html>
