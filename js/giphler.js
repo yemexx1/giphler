@@ -88,7 +88,7 @@ var Giphler = {};
 
         giphys.forEach(function (giphy) {
             var giphyHolder = document.createElement('div');
-            giphyHolder.classList.add('col-4');
+            giphyHolder.classList.add('col-md-4');
             giphyHolder.classList.add('mb-4');
             giphyHolder.innerHTML = giphyTemplate;
 
