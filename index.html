@@ -10,20 +10,15 @@
 </head>
 <body>
 <div class="container">
-    <!-- Navbar -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page">Giphler</li>
-        </ol>
-    </nav>
+    <h1 class="text-center" style="margin: 2rem 0">Giphler</h1>
 
     <!-- Search Bar -->
-    <div class="col-6 offset-3 mb-4">
+    <div class="col-6 offset-3 mb-5">
         <label class="sr-only" for="search_input">Search</label>
         <div class="input-group mb-2">
-            <input type="text" class="form-control" id="search_input" placeholder="Enter some text...">
+            <input type="text" class="form-control" id="search_input" placeholder="Search for a gif">
             <div class="input-group-append">
-                <button class="btn btn-outline-primary" id="search_button" type="button" disabled="disabled">Search
+                <button class="btn btn-primary" id="search_button" type="button" disabled="disabled">Search
                 </button>
             </div>
         </div>
@@ -78,7 +73,7 @@
             <div class="card-img-overlay"
                  style="background: linear-gradient(rgba(20,20,20, .5),rgba(20,20,20, .5)); opacity: 0;"
                  onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
-                <span class="card-text font-weight-light"></span>
+                <span class="card-text font-weight-normal text-capitalize"></span>
             </div>
         </div>
     </a>
