@@ -57,17 +57,26 @@
             </div>
         </div>
         <!-- Load More -->
-        <div class="text-center mb-4">
+        <div class="text-center mb-3">
             <button type="button" id="more" class="btn btn-outline-primary">Load More</button>
         </div>
     </div>
 </div>
 
+<div>
+    <button id="back_to_top" class="btn btn-outline-primary float-right mb-1 d-none"
+            style="position:fixed;bottom:20px;right:20px">Back to
+        Top
+    </button>
+</div>
+
 <script type="text/html" id="giphy_template">
     <div class="card text-white">
         <img class="card-img" src="" alt="">
-        <div class="card-img-overlay">
-            <span class="card-text"></span>
+        <div class="card-img-overlay"
+             style="background: linear-gradient(rgba(20,20,20, .5),rgba(20,20,20, .5)); opacity: 0;"
+             onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+            <span class="card-text font-weight-light"></span>
         </div>
     </div>
 </script>

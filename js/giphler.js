@@ -13,7 +13,10 @@ var Giphler = {};
             giphys: 'giphys',
             moreButton: 'more',
             noResultsInfo: 'no_results_info',
-            errorDash: 'error_dash'
+            errorDash: 'error_dash',
+            searchButton: 'search_button',
+            searchInput: 'search_input',
+            backToTop: 'back_to_top'
         },
         elements = {
             moreButton: document.getElementById(selectors.moreButton),
@@ -22,7 +25,10 @@ var Giphler = {};
             giphysSpace: document.getElementById(selectors.giphysSpace),
             giphys: document.getElementById(selectors.giphys),
             noResultsInfo: document.getElementById(selectors.noResultsInfo),
-            errorDash: document.getElementById(selectors.errorDash)
+            errorDash: document.getElementById(selectors.errorDash),
+            searchButton: document.getElementById(selectors.searchButton),
+            searchInput: document.getElementById(selectors.searchInput),
+            backToTop: document.getElementById(selectors.backToTop)
         };
 
     const MODE_TRENDING = 'trending';
@@ -33,6 +39,39 @@ var Giphler = {};
     context.searchQuery = null;
 
     context.init = function () {
+        elements.moreButton.addEventListener('click', context.loadMore);
+
+        elements.backToTop.addEventListener('click', function () {
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+        });
+
+        elements.searchButton.addEventListener('click', function () {
+            Giphler.getSearchResults(elements.searchInput.value);
+        });
+
+        elements.searchInput.addEventListener('keyup', function () {
+            if (this.value.length > 0) {
+                elements.searchButton.removeAttribute('disabled');
+                if (event.keyCode === 13) {
+                    elements.searchButton.click();
+                }
+            } else {
+                elements.searchButton.setAttribute('disabled', 'disabled');
+            }
+        });
+
+        window.addEventListener('scroll', function () {
+            var bounds = elements.searchInput.getBoundingClientRect();
+            var html = document.documentElement;
+            var isVisible = bounds.top >= 0 && bounds.left >= 0 && bounds.bottom <= (window.innerHeight || html.clientHeight) &&
+                bounds.right <= (window.innerWidth || html.clientWidth);
+            if (isVisible) {
+                elements.backToTop.classList.add('d-none');
+            } else {
+                elements.backToTop.classList.remove('d-none');
+            }
+        });
+
         context.numberOfGiphys = 0;
         context.showLoading(false);
         context.getTrending();
@@ -98,6 +137,10 @@ var Giphler = {};
             return;
         }
 
+        if (giphys.length < 24) {
+            elements.moreButton.classList.add('d-none');
+        }
+
         giphys.forEach(function (giphy) {
             var giphyHolder = document.createElement('div');
             giphyHolder.classList.add('col-md-4');
@@ -145,6 +188,7 @@ var Giphler = {};
             if (!loadMore) {
                 elements.moreButton.classList.add('d-none');
             }
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
         };
 
         if (typeof loadMore == 'undefined') {
@@ -189,22 +233,3 @@ var Giphler = {};
 })(Giphler);
 
 Giphler.init();
-
-var searchButton = document.getElementById('search_button');
-var searchInput = document.getElementById('search_input');
-document.getElementById('more').addEventListener('click', Giphler.loadMore);
-
-searchButton.addEventListener('click', function () {
-    Giphler.getSearchResults(searchInput.value);
-});
-
-searchInput.addEventListener('keyup', function () {
-    if (this.value.length > 0) {
-        searchButton.removeAttribute('disabled');
-        if (event.keyCode === 13) {
-            searchButton.click();
-        }
-    } else {
-        searchButton.setAttribute('disabled', 'disabled');
-    }
-});
