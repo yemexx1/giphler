@@ -149,6 +149,7 @@ var Giphler = {};
 
             var cardImage = giphyHolder.getElementsByClassName('card-img')[0];
             cardImage.setAttribute('src', giphy.images.fixed_height.url);
+            cardImage.setAttribute('alt', giphy.title);
             cardImage.setAttribute('width', giphy.images.fixed_height.width + 'px');
             cardImage.setAttribute('height', giphy.images.fixed_height.height + 'px');
             cardImage.style.opacity = 0;
@@ -156,6 +157,7 @@ var Giphler = {};
             var randomIndex = Math.floor(Math.random() * imageBackgroundColours.length);
             giphyHolder.getElementsByClassName('card-text')[0].appendChild(document.createTextNode(giphy.title));
             giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = imageBackgroundColours[randomIndex];
+            giphyHolder.getElementsByClassName('card-link')[0].href = giphy.bitly_url;
             cardImage.onload = function () {
                 giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = 'transparent';
                 cardImage.style.opacity = 1;
