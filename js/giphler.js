@@ -8,15 +8,21 @@ var Giphler = {};
         },
         selectors = {
             giphysSpace: 'giphys_space',
-            giphysLoader: 'giphys_loader',
+            giphysTopLoader: 'giphys_top_loader',
+            giphysBottomLoader: 'giphys_bottom_loader',
             giphys: 'giphys',
-            moreButton: 'more'
+            moreButton: 'more',
+            noResultsInfo: 'no_results_info',
+            errorDash: 'error_dash'
         },
         elements = {
             moreButton: document.getElementById(selectors.moreButton),
-            giphysLoader: document.getElementById(selectors.giphysLoader),
+            giphysTopLoader: document.getElementById(selectors.giphysTopLoader),
+            giphysBottomLoader: document.getElementById(selectors.giphysBottomLoader),
             giphysSpace: document.getElementById(selectors.giphysSpace),
-            giphys: document.getElementById(selectors.giphys)
+            giphys: document.getElementById(selectors.giphys),
+            noResultsInfo: document.getElementById(selectors.noResultsInfo),
+            errorDash: document.getElementById(selectors.errorDash)
         };
 
     const MODE_TRENDING = 'trending';
@@ -28,40 +34,46 @@ var Giphler = {};
 
     context.init = function () {
         context.numberOfGiphys = 0;
-        context.showLoading();
+        context.showLoading(false);
         context.getTrending();
     };
 
-    context.showLoading = function () {
-        elements.moreButton.setAttribute('disabled', 'true');
-        elements.moreButton.innerHTML = 'Loading...';
-        elements.giphysLoader.classList.remove('d-none');
-        elements.giphysSpace.classList.add('d-none');
+    context.showLoading = function (loadMore) {
+        elements.noResultsInfo.classList.add('d-none');
+        elements.errorDash.classList.add('d-none');
+        if (loadMore) {
+            elements.giphysBottomLoader.classList.remove('d-none');
+            elements.giphysSpace.classList.remove('d-none');
+            elements.giphysTopLoader.classList.add('d-none');
+            elements.moreButton.setAttribute('disabled', 'true');
+            elements.moreButton.innerHTML = 'Loading...';
+        } else {
+            elements.giphysSpace.classList.add('d-none');
+            elements.giphysTopLoader.classList.remove('d-none');
+            elements.giphysBottomLoader.classList.add('d-none');
+        }
     };
 
     context.endLoading = function () {
         elements.moreButton.removeAttribute('disabled');
         elements.moreButton.innerHTML = 'Load More';
-        elements.giphysLoader.classList.add('d-none');
+        elements.giphysTopLoader.classList.add('d-none');
+        elements.giphysBottomLoader.classList.add('d-none');
         elements.giphysSpace.classList.remove('d-none');
+        elements.moreButton.classList.remove('d-none');
     };
 
-    context.getTrending = function () {
-        if (context.mode == MODE_SEARCHING) {
-            elements.giphys.innerHTML = '';
-            context.numberOfGiphys = 0;
-        }
-
+    context.getTrending = function (loadMore) {
+        var _loadMore = loadMore || false;
         context.mode = MODE_TRENDING;
-        context.makeRequest(resourcePaths.trending, function () {
-        }, function (response) {
+        context.makeRequest(resourcePaths.trending, function (response) {
             var giphys = response.data;
             context.renderGiphys(giphys);
-            context.endLoading();
-        })
+        }, _loadMore)
     };
 
-    context.getSearchResults = function (query) {
+    context.getSearchResults = function (query, loadMore) {
+        var _loadMore = loadMore || false;
         if (query.length == 0) {
             return false;
         }
@@ -69,22 +81,22 @@ var Giphler = {};
         context.mode = MODE_SEARCHING;
         context.searchQuery = query;
 
-        context.makeRequest(resourcePaths.search + '?q=' + encodeURIComponent(query), function () {
-            if (context.numberOfGiphys == 0) {
-                context.showLoading();
-                elements.giphys.innerHTML = '';
-            }
-        }, function (response) {
+        context.makeRequest(resourcePaths.search + '?q=' + encodeURIComponent(query), function (response) {
             var giphys = response.data;
             context.renderGiphys(giphys);
-            context.endLoading();
-        })
+        }, _loadMore)
     };
 
     context.renderGiphys = function (giphys) {
         var giphysSpace = elements.giphys;
         var giphyTemplate = document.getElementById('giphy_template').innerHTML;
         var imageBackgroundColours = ['#6c757d', '#343a40', '#20c997', '#007bff', '#17a2b8', '#fd7e14'];
+
+        if (giphys.length == 0) {
+            elements.noResultsInfo.classList.remove('d-none');
+            elements.moreButton.classList.add('d-none');
+            return;
+        }
 
         giphys.forEach(function (giphy) {
             var giphyHolder = document.createElement('div');
@@ -99,6 +111,7 @@ var Giphler = {};
             cardImage.style.opacity = 0;
 
             var randomIndex = Math.floor(Math.random() * imageBackgroundColours.length);
+            giphyHolder.getElementsByClassName('card-text')[0].appendChild(document.createTextNode(giphy.title));
             giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = imageBackgroundColours[randomIndex];
             cardImage.onload = function () {
                 giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = 'transparent';
@@ -111,23 +124,32 @@ var Giphler = {};
         context.numberOfGiphys += giphys.length;
     };
 
+    context.clearGiphys = function () {
+        elements.giphys.innerHTML = '';
+        context.numberOfGiphys = 0;
+    };
+
     context.loadMore = function () {
         if (context.mode == MODE_TRENDING) {
-            context.getTrending();
+            context.getTrending(true);
         } else {
-            context.getSearchResults(context.searchQuery);
+            context.getSearchResults(context.searchQuery, true);
         }
     };
 
-    context.makeRequest = function (resourcePath, loadingCallback, responseCallback, errorCallback) {
-        if (typeof errorCallback == 'undefined') {
-            errorCallback = function (error) {
-                console.log('There was a problem with the request.');
-                console.log(error);
-            }
-        }
+    context.makeRequest = function (resourcePath, responseCallback, loadMore) {
 
-        loadingCallback();
+        var errorCallback = function () {
+            context.endLoading();
+            elements.errorDash.classList.remove('d-none');
+            if (!loadMore) {
+                elements.moreButton.classList.add('d-none');
+            }
+        };
+
+        if (typeof loadMore == 'undefined') {
+            loadMore = false;
+        }
 
         var httpRequest = new XMLHttpRequest();
 
@@ -135,10 +157,16 @@ var Giphler = {};
             errorCallback();
         }
 
+        context.showLoading(loadMore);
+
         httpRequest.onreadystatechange = function () {
             try {
                 if (httpRequest.readyState === XMLHttpRequest.DONE) {
                     if (httpRequest.status === 200) {
+                        if (!loadMore) {
+                            context.clearGiphys();
+                        }
+                        context.endLoading();
                         responseCallback(JSON.parse(httpRequest.responseText));
                     } else {
                         errorCallback(httpRequest.responseText);
@@ -152,7 +180,8 @@ var Giphler = {};
 
         var url = apiHost + resourcePath;
         url += (resourcePath.indexOf('?') == -1) ? '?' : '&';
-        url = url + 'api_key=' + apiKey + '&offset=' + (context.numberOfGiphys + 1);
+        var offset = (loadMore) ? (context.numberOfGiphys + 1) : 0;
+        url = url + 'api_key=' + apiKey + '&offset=' + offset + '&limit=24';
         httpRequest.open('GET', url, true);
         httpRequest.send();
 
@@ -166,13 +195,15 @@ var searchInput = document.getElementById('search_input');
 document.getElementById('more').addEventListener('click', Giphler.loadMore);
 
 searchButton.addEventListener('click', function () {
-    Giphler.numberOfGiphys = 0;
     Giphler.getSearchResults(searchInput.value);
 });
 
 searchInput.addEventListener('keyup', function () {
     if (this.value.length > 0) {
         searchButton.removeAttribute('disabled');
+        if (event.keyCode === 13) {
+            searchButton.click();
+        }
     } else {
         searchButton.setAttribute('disabled', 'disabled');
     }

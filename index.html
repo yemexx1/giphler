@@ -22,19 +22,40 @@
         <div class="input-group mb-2">
             <input type="text" class="form-control" id="search_input" placeholder="Enter some text...">
             <div class="input-group-append">
-                <button class="btn btn-outline-primary" id="search_button" type="button" disabled="disabled">Search</button>
+                <button class="btn btn-outline-primary" id="search_button" type="button" disabled="disabled">Search
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Loader -->
-    <div id="giphys_loader">Loading...</div>
+    <!-- Top Loader -->
+    <div class="progress" id="giphys_top_loader">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
+             aria-valuemin="0" aria-valuemax="100" style="width: 100%">Loading...
+        </div>
+    </div>
+
+    <div class="alert alert-warning d-none" role="alert" id="no_results_info">
+        <h4 class="alert-heading">No results found</h4>
+        <p>Giphler could not find any gifs corresponding to your search query</p>
+    </div>
+
+    <div class="alert alert-danger d-none" role="alert" id="error_dash">
+        <h4 class="alert-heading">Aww Snap!</h4>
+        <p>There was an error loading gifs. Please try again.</p>
+    </div>
 
     <div id="giphys_space" class="d-none">
         <!-- Gihpys -->
         <div class="row" id="giphys">
         </div>
 
+        <!-- Bottom Loader -->
+        <div class="progress mb-2" id="giphys_bottom_loader">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
+                 aria-valuemin="0" aria-valuemax="100" style="width: 100%">Loading...
+            </div>
+        </div>
         <!-- Load More -->
         <div class="text-center mb-4">
             <button type="button" id="more" class="btn btn-outline-primary">Load More</button>
