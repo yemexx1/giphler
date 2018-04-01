@@ -1,6 +1,6 @@
 var Giphler = {};
 (function (context) {
-    var apiHost = 'http://api.giphy.com',
+    var apiHost = 'https://api.giphy.com',
         apiKey = 'dc6zaTOxFJmzC',
         resourcePaths = {
             trending: '/v1/gifs/trending',
