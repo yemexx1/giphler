@@ -16,7 +16,9 @@ var Giphler = {};
             errorDash: 'error_dash',
             searchButton: 'search_button',
             searchInput: 'search_input',
-            backToTop: 'back_to_top'
+            backToTop: 'back_to_top',
+            modeIndicator: 'mode_indicator',
+            backToTrendingButton: 'back_to_trending_btn'
         },
         elements = {
             moreButton: document.getElementById(selectors.moreButton),
@@ -28,7 +30,9 @@ var Giphler = {};
             errorDash: document.getElementById(selectors.errorDash),
             searchButton: document.getElementById(selectors.searchButton),
             searchInput: document.getElementById(selectors.searchInput),
-            backToTop: document.getElementById(selectors.backToTop)
+            backToTop: document.getElementById(selectors.backToTop),
+            modeIndicator: document.getElementById(selectors.modeIndicator),
+            backToTrendingButton: document.getElementById(selectors.backToTrendingButton)
         };
 
     const MODE_TRENDING = 'trending';
@@ -72,6 +76,11 @@ var Giphler = {};
             }
         });
 
+        elements.backToTrendingButton.addEventListener('click', function () {
+            elements.searchInput.value = '';
+            context.getTrending()
+        });
+
         context.numberOfGiphys = 0;
         context.showLoading(false);
         context.getTrending();
@@ -100,6 +109,8 @@ var Giphler = {};
         elements.giphysBottomLoader.classList.add('d-none');
         elements.giphysSpace.classList.remove('d-none');
         elements.moreButton.classList.remove('d-none');
+        elements.modeIndicator.classList.add('d-inline-block');
+        elements.modeIndicator.classList.remove('d-none');
     };
 
     context.getTrending = function (loadMore) {
@@ -134,6 +145,11 @@ var Giphler = {};
         if (giphys.length == 0) {
             elements.noResultsInfo.classList.remove('d-none');
             elements.moreButton.classList.add('d-none');
+            elements.giphysSpace.classList.remove('d-none');
+            elements.modeIndicator.classList.remove('d-inline-block');
+            elements.modeIndicator.classList.add('d-none');
+            elements.backToTrendingButton.classList.remove('d-none');
+            elements.backToTrendingButton.classList.add('d-inline-block');
             return;
         }
 
@@ -167,6 +183,16 @@ var Giphler = {};
         });
 
         context.numberOfGiphys += giphys.length;
+
+        if (context.mode == MODE_SEARCHING) {
+            elements.backToTrendingButton.classList.remove('d-none');
+            elements.backToTrendingButton.classList.add('d-inline-block');
+            elements.modeIndicator.innerHTML = 'Showing results for <i>' + context.searchQuery + '</i>';
+        } else {
+            elements.backToTrendingButton.classList.add('d-none');
+            elements.backToTrendingButton.classList.remove('d-inline-block');
+            elements.modeIndicator.innerHTML = 'Trending Gifs';
+        }
     };
 
     context.clearGiphys = function () {

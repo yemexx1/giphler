@@ -1,0 +1,9 @@
+.card:hover {
+    box-shadow: 0 6px 4px -2px #ddd
+}
+
+.card-img-overlay {
+    border-radius: calc(0.25rem - 1px);
+    background: linear-gradient(rgba(20, 20, 20, .5), rgba(20, 20, 20, .5));
+    opacity: 0;
+}

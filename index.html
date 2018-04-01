@@ -4,8 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <!--<link rel="stylesheet" href="css/bootstrap.css">-->
+    <link rel="stylesheet" href="css/giphler.css">
     <title>Giphler</title>
 </head>
 <body>
@@ -13,7 +14,7 @@
     <h1 class="text-center" style="margin: 2rem 0">Giphler</h1>
 
     <!-- Search Bar -->
-    <div class="col-6 offset-3 mb-5">
+    <div class="col-md-6 offset-md-3 mb-5">
         <label class="sr-only" for="search_input">Search</label>
         <div class="input-group mb-2">
             <input type="text" class="form-control" id="search_input" placeholder="Search for a gif">
@@ -25,7 +26,7 @@
     </div>
 
     <!-- Top Loader -->
-    <div class="progress" id="giphys_top_loader">
+    <div class="progress" id="giphys_top_loader" style="height: 2rem">
         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
              aria-valuemin="0" aria-valuemax="100" style="width: 100%">Loading...
         </div>
@@ -42,12 +43,15 @@
     </div>
 
     <div id="giphys_space" class="d-none">
+
+        <h5 id="mode_indicator" class="mb-3 d-inline-block d-none">Trending Gifs</h5>
+        <button id="back_to_trending_btn" class="btn d-none float-right text-primary">Back to Trending</button>
         <!-- Gihpys -->
         <div class="row" id="giphys">
         </div>
 
         <!-- Bottom Loader -->
-        <div class="progress mb-2" id="giphys_bottom_loader">
+        <div class="progress mb-2" id="giphys_bottom_loader" style="height: 2rem">
             <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100"
                  aria-valuemin="0" aria-valuemax="100" style="width: 100%">Loading...
             </div>
@@ -60,8 +64,8 @@
 </div>
 
 <div>
-    <button id="back_to_top" class="btn btn-outline-primary float-right mb-1 d-none"
-            style="position:fixed;bottom:20px;right:20px">Back to
+    <button id="back_to_top" class="btn btn-light border-primary text-primary float-right d-none"
+            style="position:fixed;bottom:18px;right:20px">Back to
         Top
     </button>
 </div>
@@ -70,15 +74,13 @@
     <a href="#" class="card-link" target="_blank">
         <div class="card text-white">
             <img class="card-img" src="" alt="">
-            <div class="card-img-overlay"
-                 style="background: linear-gradient(rgba(20,20,20, .5),rgba(20,20,20, .5)); opacity: 0;"
-                 onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+            <div class="card-img-overlay" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
                 <span class="card-text font-weight-normal text-capitalize"></span>
             </div>
         </div>
     </a>
 </script>
 
-<script src="js/giphler.js"></script>
+<script type="text/javascript" src="js/giphler.js"></script>
 </body>
 </html>
