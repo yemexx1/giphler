@@ -1,0 +1,25 @@
+{
+  "name": "giphler",
+  "version": "1.0.0",
+  "description": "Giphler =======",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "./node_modules/.bin/codeceptjs run --steps"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yemexx1/giphler.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yemexx1/giphler/issues"
+  },
+  "homepage": "https://github.com/yemexx1/giphler#readme",
+  "devDependencies": {
+    "codeceptjs-puppeteer": "^1.1.0",
+    "finalhandler": "^1.1.1",
+    "serve-static": "^1.13.2"
+  }
+}

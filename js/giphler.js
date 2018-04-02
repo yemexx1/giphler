@@ -6,41 +6,29 @@ var Giphler = {};
             trending: '/v1/gifs/trending',
             search: '/v1/gifs/search'
         },
-        selectors = {
-            giphysSpace: 'giphys_space',
-            giphysTopLoader: 'giphys_top_loader',
-            giphysBottomLoader: 'giphys_bottom_loader',
-            giphys: 'giphys',
-            moreButton: 'more',
-            noResultsInfo: 'no_results_info',
-            errorDash: 'error_dash',
-            searchButton: 'search_button',
-            searchInput: 'search_input',
-            backToTop: 'back_to_top',
-            modeIndicator: 'mode_indicator',
-            backToTrendingButton: 'back_to_trending_btn'
-        },
         elements = {
-            moreButton: document.getElementById(selectors.moreButton),
-            giphysTopLoader: document.getElementById(selectors.giphysTopLoader),
-            giphysBottomLoader: document.getElementById(selectors.giphysBottomLoader),
-            giphysSpace: document.getElementById(selectors.giphysSpace),
-            giphys: document.getElementById(selectors.giphys),
-            noResultsInfo: document.getElementById(selectors.noResultsInfo),
-            errorDash: document.getElementById(selectors.errorDash),
-            searchButton: document.getElementById(selectors.searchButton),
-            searchInput: document.getElementById(selectors.searchInput),
-            backToTop: document.getElementById(selectors.backToTop),
-            modeIndicator: document.getElementById(selectors.modeIndicator),
-            backToTrendingButton: document.getElementById(selectors.backToTrendingButton)
+            moreButton: document.getElementById('more'),
+            giphysTopLoader: document.getElementById('giphys_top_loader'),
+            giphysBottomLoader: document.getElementById('giphys_bottom_loader'),
+            giphysSpace: document.getElementById('giphys_space'),
+            giphys: document.getElementById('giphys'),
+            noResultsInfo: document.getElementById('no_results_info'),
+            errorDash: document.getElementById('error_dash'),
+            searchButton: document.getElementById('search_button'),
+            searchInput: document.getElementById('search_input'),
+            backToTop: document.getElementById('back_to_top'),
+            modeIndicator: document.getElementById('mode_indicator'),
+            backToTrendingButton: document.getElementById('back_to_trending_btn')
         };
 
     const MODE_TRENDING = 'trending';
     const MODE_SEARCHING = 'search';
+    const GIPHY_LIMIT = 24;
 
     context.numberOfGiphys = 0;
     context.mode = MODE_TRENDING;
     context.searchQuery = null;
+    context.toLoadMore = false;
 
     context.init = function () {
         elements.moreButton.addEventListener('click', context.loadMore);
@@ -81,51 +69,16 @@ var Giphler = {};
             context.getTrending()
         });
 
-        context.numberOfGiphys = 0;
         context.showLoading(false);
         context.getTrending();
     };
 
-    context.showLoading = function (loadMore) {
-        elements.noResultsInfo.classList.add('d-none');
-        elements.errorDash.classList.add('d-none');
-        elements.searchButton.setAttribute('disabled', 'disabled');
-        if (loadMore) {
-            elements.giphysBottomLoader.classList.remove('d-none');
-            elements.giphysSpace.classList.remove('d-none');
-            elements.giphysTopLoader.classList.add('d-none');
-            elements.moreButton.setAttribute('disabled', 'true');
-            elements.moreButton.innerHTML = 'Loading...';
-        } else {
-            elements.giphysSpace.classList.add('d-none');
-            elements.giphysTopLoader.classList.remove('d-none');
-            elements.giphysBottomLoader.classList.add('d-none');
-        }
-    };
-
-    context.endLoading = function () {
-        elements.moreButton.removeAttribute('disabled');
-        elements.moreButton.innerHTML = 'Load More';
-        elements.giphysTopLoader.classList.add('d-none');
-        elements.giphysBottomLoader.classList.add('d-none');
-        elements.giphysSpace.classList.remove('d-none');
-        elements.moreButton.classList.remove('d-none');
-        elements.modeIndicator.classList.add('d-inline-block');
-        elements.modeIndicator.classList.remove('d-none');
-        elements.searchButton.removeAttribute('disabled');
-    };
-
-    context.getTrending = function (loadMore) {
-        var _loadMore = loadMore || false;
+    context.getTrending = function () {
         context.mode = MODE_TRENDING;
-        context.makeRequest(resourcePaths.trending, function (response) {
-            var giphys = response.data;
-            context.renderGiphysSpace(giphys);
-        }, _loadMore)
+        context.getGiphys(resourcePaths.trending);
     };
 
-    context.getSearchResults = function (query, loadMore) {
-        var _loadMore = loadMore || false;
+    context.getSearchResults = function (query) {
         if (query.length == 0) {
             return false;
         }
@@ -133,68 +86,81 @@ var Giphler = {};
         context.mode = MODE_SEARCHING;
         context.searchQuery = query;
 
-        context.makeRequest(resourcePaths.search + '?q=' + encodeURIComponent(query), function (response) {
-            var giphys = response.data;
-            context.renderGiphysSpace(giphys);
-        }, _loadMore)
+        context.getGiphys(resourcePaths.search + '?q=' + encodeURIComponent(query));
+    };
+
+    context.getGiphys = function (resourcePath) {
+        var loadMore = context.toLoadMore;
+        context.toLoadMore = false;
+        var offset = (loadMore) ? context.numberOfGiphys + 1 : 0;
+
+        context.showLoading(loadMore);
+        context.makeRequest(resourcePath, function (response) {
+            if (!loadMore) {
+                context.clearGiphys();
+            }
+            context.endLoading();
+            context.renderGiphysSpace(response.data);
+        }, offset)
     };
 
     context.renderGiphysSpace = function (giphys) {
         var giphysSpace = elements.giphys;
-        var giphyTemplate = document.getElementById('giphy_template').innerHTML;
-        var imageBackgroundColours = ['#6c757d', '#343a40', '#20c997', '#007bff', '#17a2b8', '#fd7e14'];
 
         if (giphys.length == 0) {
-            elements.noResultsInfo.classList.remove('d-none');
-            elements.moreButton.classList.add('d-none');
-            elements.giphysSpace.classList.remove('d-none');
-            elements.modeIndicator.classList.remove('d-inline-block');
-            elements.modeIndicator.classList.add('d-none');
-            elements.backToTrendingButton.classList.remove('d-none');
-            elements.backToTrendingButton.classList.add('d-inline-block');
+            context.show(elements.noResultsInfo);
+            context.hide(elements.moreButton);
+            context.show(giphysSpace);
+            context.hide(elements.modeIndicator);
+            context.show(elements.backToTrendingButton, true);
             return;
         }
 
-        if (giphys.length < 24) {
+        if (giphys.length < GIPHY_LIMIT) {
             elements.moreButton.classList.add('d-none');
         }
 
         giphys.forEach(function (giphy) {
-            var giphyHolder = document.createElement('div');
-            giphyHolder.classList.add('col-md-4');
-            giphyHolder.classList.add('mb-4');
-            giphyHolder.innerHTML = giphyTemplate;
-
-            var cardImage = giphyHolder.getElementsByClassName('card-img')[0];
-            cardImage.setAttribute('src', giphy.images.fixed_height.url);
-            cardImage.setAttribute('alt', giphy.title);
-            cardImage.setAttribute('width', giphy.images.fixed_height.width + 'px');
-            cardImage.setAttribute('height', giphy.images.fixed_height.height + 'px');
-            cardImage.style.opacity = 0;
-
-            var randomIndex = Math.floor(Math.random() * imageBackgroundColours.length);
-            giphyHolder.getElementsByClassName('card-text')[0].appendChild(document.createTextNode(giphy.title));
-            giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = imageBackgroundColours[randomIndex];
-            giphyHolder.getElementsByClassName('card-link')[0].href = giphy.bitly_url;
-            cardImage.onload = function () {
-                giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = 'transparent';
-                cardImage.style.opacity = 1;
-            };
-
+            var giphyHolder = context.renderGiphy(giphy);
             giphysSpace.appendChild(giphyHolder);
         });
 
         context.numberOfGiphys += giphys.length;
 
         if (context.mode == MODE_SEARCHING) {
-            elements.backToTrendingButton.classList.remove('d-none');
-            elements.backToTrendingButton.classList.add('d-inline-block');
+            context.show(elements.backToTrendingButton, true);
             elements.modeIndicator.innerHTML = 'Showing results for <i>' + context.searchQuery + '</i>';
         } else {
-            elements.backToTrendingButton.classList.add('d-none');
-            elements.backToTrendingButton.classList.remove('d-inline-block');
+            context.hide(elements.backToTrendingButton);
             elements.modeIndicator.innerHTML = 'Trending GIFs';
         }
+    };
+
+    context.renderGiphy = function (giphy) {
+        var giphyHolder = document.createElement('div');
+        var giphyTemplate = document.getElementById('giphy_template').innerHTML;
+        var imageBackgroundColours = ['#6c757d', '#343a40', '#20c997', '#007bff', '#17a2b8', '#fd7e14'];
+
+        giphyHolder.classList.add('col-md-4');
+        giphyHolder.classList.add('mb-4');
+        giphyHolder.innerHTML = giphyTemplate;
+
+        var cardImage = giphyHolder.getElementsByClassName('card-img')[0];
+        cardImage.setAttribute('src', giphy.images.fixed_height.url);
+        cardImage.setAttribute('alt', giphy.title);
+        cardImage.setAttribute('width', giphy.images.fixed_height.width + 'px');
+        cardImage.setAttribute('height', giphy.images.fixed_height.height + 'px');
+        cardImage.style.opacity = 0;
+
+        var randomIndex = Math.floor(Math.random() * imageBackgroundColours.length);
+        giphyHolder.getElementsByClassName('card-text')[0].appendChild(document.createTextNode(giphy.title));
+        giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = imageBackgroundColours[randomIndex];
+        giphyHolder.getElementsByClassName('card-link')[0].href = giphy.bitly_url;
+        cardImage.onload = function () {
+            giphyHolder.getElementsByClassName('card')[0].style.backgroundColor = 'transparent';
+            cardImage.style.opacity = 1;
+        };
+        return giphyHolder;
     };
 
     context.clearGiphys = function () {
@@ -203,61 +169,78 @@ var Giphler = {};
     };
 
     context.loadMore = function () {
+        context.toLoadMore = true;
         if (context.mode == MODE_TRENDING) {
-            context.getTrending(true);
+            context.getTrending();
         } else {
-            context.getSearchResults(context.searchQuery, true);
+            context.getSearchResults(context.searchQuery);
         }
     };
 
-    context.makeRequest = function (resourcePath, responseCallback, loadMore) {
-
-        var errorCallback = function () {
-            context.endLoading();
-            elements.errorDash.classList.remove('d-none');
-            if (!loadMore) {
-                elements.moreButton.classList.add('d-none');
-            }
-            context.scrollToTop();
-        };
-
-        if (typeof loadMore == 'undefined') {
-            loadMore = false;
-        }
-
+    context.makeRequest = function (resourcePath, responseCallback, offset) {
         var httpRequest = new XMLHttpRequest();
-
         if (!httpRequest) {
-            errorCallback();
+            context.showError();
         }
-
-        context.showLoading(loadMore);
 
         httpRequest.onreadystatechange = function () {
             try {
                 if (httpRequest.readyState === XMLHttpRequest.DONE) {
                     if (httpRequest.status === 200) {
-                        if (!loadMore) {
-                            context.clearGiphys();
-                        }
-                        context.endLoading();
                         responseCallback(JSON.parse(httpRequest.responseText));
                     } else {
-                        errorCallback(httpRequest.responseText);
+                        context.showError();
                     }
                 }
             } catch (e) {
-                errorCallback(e);
+                context.showError();
             }
         };
 
-
         var url = apiHost + resourcePath;
         url += (resourcePath.indexOf('?') == -1) ? '?' : '&';
-        var offset = (loadMore) ? (context.numberOfGiphys + 1) : 0;
-        url = url + 'api_key=' + apiKey + '&offset=' + offset + '&limit=24';
+        url = url + 'api_key=' + apiKey + '&offset=' + offset + '&limit=' + GIPHY_LIMIT;
         httpRequest.open('GET', url, true);
         httpRequest.send();
+    };
+
+    context.showLoading = function (loadMore) {
+        context.hide(elements.noResultsInfo);
+        context.hide(elements.errorDash);
+        elements.searchButton.setAttribute('disabled', 'disabled');
+
+        if (loadMore) {
+            elements.moreButton.setAttribute('disabled', 'true');
+            elements.moreButton.innerHTML = 'Loading...';
+            context.show(elements.giphysBottomLoader);
+            context.hide(elements.giphysTopLoader);
+            context.show(elements.giphysSpace);
+        } else {
+            context.hide(elements.giphysSpace);
+            context.show(elements.giphysTopLoader);
+            context.hide(elements.giphysBottomLoader);
+        }
+    };
+
+    context.endLoading = function () {
+        elements.moreButton.removeAttribute('disabled');
+        elements.moreButton.innerHTML = 'Load More';
+        elements.searchButton.removeAttribute('disabled');
+
+        context.hide(elements.giphysTopLoader);
+        context.hide(elements.giphysBottomLoader);
+        context.show(elements.giphysSpace);
+        context.show(elements.moreButton);
+        context.show(elements.modeIndicator, true);
+    };
+
+    context.showError = function () {
+        context.endLoading();
+        context.show(elements.errorDash);
+        if (document.getElementsByClassName('card').length == 0) {
+            context.hide(elements.giphysSpace);
+        }
+        context.scrollToTop();
     };
 
     context.scrollToTop = function () {
@@ -268,6 +251,19 @@ var Giphler = {};
                 }
                 else clearInterval(scrollInterval);
             }, 15);
+    };
+
+    context.hide = function (element) {
+        element.classList.add('d-none');
+        element.classList.remove('d-inline-block');
+    };
+
+    context.show = function (element, addInline) {
+        addInline = addInline || false;
+        element.classList.remove('d-none');
+        if (addInline) {
+            element.classList.add('d-inline-block');
+        }
     }
 })(Giphler);
 

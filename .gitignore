@@ -1,1 +1,4 @@
 css/bootstrap*
+node_modules
+.idea
+output
