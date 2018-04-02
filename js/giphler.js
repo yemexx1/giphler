@@ -46,7 +46,7 @@ var Giphler = {};
         elements.moreButton.addEventListener('click', context.loadMore);
 
         elements.backToTop.addEventListener('click', function () {
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
+            context.scrollToTop();
         });
 
         elements.searchButton.addEventListener('click', function () {
@@ -89,6 +89,7 @@ var Giphler = {};
     context.showLoading = function (loadMore) {
         elements.noResultsInfo.classList.add('d-none');
         elements.errorDash.classList.add('d-none');
+        elements.searchButton.setAttribute('disabled', 'disabled');
         if (loadMore) {
             elements.giphysBottomLoader.classList.remove('d-none');
             elements.giphysSpace.classList.remove('d-none');
@@ -111,6 +112,7 @@ var Giphler = {};
         elements.moreButton.classList.remove('d-none');
         elements.modeIndicator.classList.add('d-inline-block');
         elements.modeIndicator.classList.remove('d-none');
+        elements.searchButton.removeAttribute('disabled');
     };
 
     context.getTrending = function (loadMore) {
@@ -118,7 +120,7 @@ var Giphler = {};
         context.mode = MODE_TRENDING;
         context.makeRequest(resourcePaths.trending, function (response) {
             var giphys = response.data;
-            context.renderGiphys(giphys);
+            context.renderGiphysSpace(giphys);
         }, _loadMore)
     };
 
@@ -133,11 +135,11 @@ var Giphler = {};
 
         context.makeRequest(resourcePaths.search + '?q=' + encodeURIComponent(query), function (response) {
             var giphys = response.data;
-            context.renderGiphys(giphys);
+            context.renderGiphysSpace(giphys);
         }, _loadMore)
     };
 
-    context.renderGiphys = function (giphys) {
+    context.renderGiphysSpace = function (giphys) {
         var giphysSpace = elements.giphys;
         var giphyTemplate = document.getElementById('giphy_template').innerHTML;
         var imageBackgroundColours = ['#6c757d', '#343a40', '#20c997', '#007bff', '#17a2b8', '#fd7e14'];
@@ -191,7 +193,7 @@ var Giphler = {};
         } else {
             elements.backToTrendingButton.classList.add('d-none');
             elements.backToTrendingButton.classList.remove('d-inline-block');
-            elements.modeIndicator.innerHTML = 'Trending Gifs';
+            elements.modeIndicator.innerHTML = 'Trending GIFs';
         }
     };
 
@@ -216,7 +218,7 @@ var Giphler = {};
             if (!loadMore) {
                 elements.moreButton.classList.add('d-none');
             }
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
+            context.scrollToTop();
         };
 
         if (typeof loadMore == 'undefined') {
@@ -256,8 +258,17 @@ var Giphler = {};
         url = url + 'api_key=' + apiKey + '&offset=' + offset + '&limit=24';
         httpRequest.open('GET', url, true);
         httpRequest.send();
-
     };
+
+    context.scrollToTop = function () {
+        var scrollStep = -window.scrollY / (1000 / 15),
+            scrollInterval = setInterval(function () {
+                if (window.scrollY != 0) {
+                    window.scrollBy(0, scrollStep);
+                }
+                else clearInterval(scrollInterval);
+            }, 15);
+    }
 })(Giphler);
 
 Giphler.init();
