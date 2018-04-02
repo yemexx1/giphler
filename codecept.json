@@ -10,6 +10,5 @@
   },
   "bootstrap": "./server.js",
   "teardown": "./server.js",
-  "mocha": {},
   "name": "giphler"
 }
